@@ -73,14 +73,14 @@ var avatarsArray = [
 ];
 
 var titlesArray = [
-  'Заголовок предложения 1',
-  'Заголовок предложения 2',
-  'Заголовок предложения 3',
-  'Заголовок предложения 4',
-  'Заголовок предложения 5',
-  'Заголовок предложения 6',
-  'Заголовок предложения 7',
-  'Заголовок предложения 8'
+  'Sugar Loft Apartments',
+  'Injoy Lofts Ipanema',
+  'Studio Copacabana',
+  'Amplo Apartamento com Piscina e Garagem',
+  'Residencial Sausalito',
+  'Apto Barra-Jeunesse Rio Centro',
+  'Bien-être à Ipanema',
+  'Tiffany'
 ];
 
 var descriptionsArray = [
