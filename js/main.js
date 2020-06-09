@@ -34,7 +34,7 @@ var Photos = [
 ];
 
 var TypesOfFlat = {
-  palace: 'Особняк',
+  palace: 'Дворец',
   flat: 'Квартира',
   house: 'Дом',
   bungalo: 'Бунгало'
@@ -119,7 +119,7 @@ var getOfferAddress = function (mockLocation) {
 };
 
 var getOfferPrice = function () {
-  return getRandomIntInclusive(250, 15000);
+  return getRandomIntInclusive(10000, 500000);
 };
 
 var getOfferType = function () {
@@ -215,4 +215,36 @@ var getMocksArray = function () {
   return mocksArray;
 };
 
-getMocksArray();
+var getPinElement = function (mock, template) {
+  var pinElement = template.cloneNode(true);
+  pinElement.style = 'left: ' + (mock.location.x - 32.5) + 'px; top: ' + (mock.location.y - 54.5) + 'px;';
+  var pinElementImage = pinElement.querySelector('img');
+  pinElementImage.src = mock.author.avatar;
+  pinElementImage.alt = mock.offer.title;
+  return pinElement;
+};
+
+var getPinsFragment = function (mocks) {
+  var pinsFragment = document.createDocumentFragment();
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+
+  for (var i = 0; i < mocks.length; i++) {
+    pinsFragment.appendChild(getPinElement(mocks[i], pinTemplate));
+  }
+
+  return pinsFragment;
+};
+
+var renderMapPins = function (mocks) {
+  var mapPinsBlock = document.querySelector('.map__pins');
+
+  mapPinsBlock.appendChild(getPinsFragment(mocks));
+};
+
+var switchMapMode = function () {
+  document.querySelector('.map').classList.toggle('map--faded');
+};
+
+var mocksData = getMocksArray();
+switchMapMode();
+renderMapPins(mocksData);
