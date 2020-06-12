@@ -1,7 +1,7 @@
 'use strict';
 
-var amountOfMocks = 8;
 var mapPinsBlock = document.querySelector('.map__pins');
+var mocksArray = [];
 
 var photosArray = [
   'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
@@ -87,9 +87,39 @@ var getRandomLengthArray = function (array) {
   return resultArray;
 };
 
-var getMocksArray = function () {
-  var mocksArray = [];
-  var mock = [];
+var getPinElement = function (mock, template) {
+  var pinElement = template.cloneNode(true);
+  var pinElementImage = pinElement.querySelector('img');
+
+  pinElement.style = 'left: ' + (mock.location.x - 32.5) + 'px; top: ' + (mock.location.y - 54.5) + 'px;';
+  pinElementImage.src = mock.author.avatar;
+  pinElementImage.alt = mock.offer.title;
+
+  return pinElement;
+};
+
+var getPinsFragment = function (mocks) {
+  var pinsFragment = document.createDocumentFragment();
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+
+  for (var i = 0; i < mocks.length; i++) {
+    pinsFragment.appendChild(getPinElement(mocks[i], pinTemplate));
+  }
+
+  return pinsFragment;
+};
+
+var renderMapPins = function (mocks) {
+  mapPinsBlock.appendChild(getPinsFragment(mocks));
+};
+
+var switchMapMode = function () {
+  document.querySelector('.map').classList.toggle('map--faded');
+};
+
+(function () {
+  var amountOfMocks = avatarsArray.length;
+  var mock = {};
   var locationX;
   var locationY;
 
@@ -121,40 +151,7 @@ var getMocksArray = function () {
 
     mocksArray.push(mock);
   }
+})();
 
-  return mocksArray;
-};
-
-var getPinElement = function (mock, template) {
-  var pinElement = template.cloneNode(true);
-  var pinElementImage = pinElement.querySelector('img');
-
-  pinElement.style = 'left: ' + (mock.location.x - 32.5) + 'px; top: ' + (mock.location.y - 54.5) + 'px;';
-  pinElementImage.src = mock.author.avatar;
-  pinElementImage.alt = mock.offer.title;
-
-  return pinElement;
-};
-
-var getPinsFragment = function (mocks) {
-  var pinsFragment = document.createDocumentFragment();
-  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-
-  for (var i = 0; i < mocks.length; i++) {
-    pinsFragment.appendChild(getPinElement(mocks[i], pinTemplate));
-  }
-
-  return pinsFragment;
-};
-
-var renderMapPins = function (mocks) {
-  mapPinsBlock.appendChild(getPinsFragment(mocks));
-};
-
-var switchMapMode = function () {
-  document.querySelector('.map').classList.toggle('map--faded');
-};
-
-var mocksData = getMocksArray();
 switchMapMode();
-renderMapPins(mocksData);
+renderMapPins(mocksArray);
