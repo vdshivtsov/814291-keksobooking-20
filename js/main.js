@@ -69,7 +69,6 @@ var DESCRIPTIONS_ARRAY = [
 
 var mapPinsBlock = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var mocksArray = [];
 
 var getRandomIntInclusive = function (min, max) {
   min = Math.ceil(min);
@@ -118,7 +117,7 @@ var switchMapMode = function () {
 };
 
 var getMocksArray = function () {
-  mocksArray = [];
+  var mocksArray = [];
   var amountOfMocks = AVATARS_ARRAY.length;
   var mock = {};
   var locationX;
@@ -155,8 +154,9 @@ var getMocksArray = function () {
 
     mocksArray.push(mock);
   }
+  return mocksArray;
 };
 
-getMocksArray();
+var testData = getMocksArray();
 switchMapMode();
-renderMapPins(mocksArray);
+renderMapPins(testData);
