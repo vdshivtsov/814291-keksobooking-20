@@ -6,13 +6,6 @@ var PHOTOS_ARRAY = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
-var TYPES_OF_FLAT_ARRAY = [
-  'palace',
-  'flat',
-  'house',
-  'bungalo'
-];
-
 var CHECKIN_TYPES_ARRAY = [
   '12:00',
   '13:00',
@@ -66,6 +59,22 @@ var DESCRIPTIONS_ARRAY = [
   'Эти апартаменты расположены в городе Дестин, всего в нескольких шагах от пляжа Дестин, пляжа Оушен-Вью и 8. К услугам гостей апартаментов Flr открытый бассейн, фитнес-центр, бар и бесплатный Wi-Fi.',
   'Апартаменты-студио Bay Front расположены на 4 этаже здания Bay Front, в городе Дестин, штат Сэнддестин. К услугам гостей бесплатный Wi-Fi, кондиционер, ресторан и сад с открытым бассейном.'
 ];
+
+var typesOfFlatDictionary = {
+  'palace': 'Дворец',
+  'flat': 'Квартира',
+  'house': 'Дом',
+  'bungalo': 'Бунгало'
+};
+
+var mapFromFeatureToClass = {
+  'wifi': 'popup__feature--wifi',
+  'dishwasher': 'popup__feature--dishwasher',
+  'parking': 'popup__feature--parking',
+  'washer': 'popup__feature--washer',
+  'elevator': 'popup__feature--elevator',
+  'conditioner': 'popup__feature--conditioner'
+};
 
 var mapPinsBlock = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -137,7 +146,7 @@ var getMocksArray = function () {
         'title': titles.splice(getRandomIntInclusive(0, titles.length - 1), 1)[0],
         'address': locationX + ', ' + locationY,
         'price': getRandomIntInclusive(10000, 500000),
-        'type': TYPES_OF_FLAT_ARRAY[getRandomIntInclusive(0, TYPES_OF_FLAT_ARRAY.length - 1)],
+        'type': Object.keys(typesOfFlatDictionary)[getRandomIntInclusive(0, Object.keys(typesOfFlatDictionary).length - 1)],
         'rooms': getRandomIntInclusive(1, 10),
         'guests': getRandomIntInclusive(2, 30),
         'checkin': CHECKIN_TYPES_ARRAY[getRandomIntInclusive(0, CHECKIN_TYPES_ARRAY.length - 1)],
@@ -157,6 +166,89 @@ var getMocksArray = function () {
   return mocksArray;
 };
 
+var hideElement = function (nodeElement) {
+  nodeElement.style.display = 'none';
+};
+
+var checkDataAndCreateElement = function (nodeElement, data, option, insertText) {
+  if (!data) {
+    hideElement(nodeElement);
+    return;
+  } else {
+    if (option) {
+      nodeElement.textContent = insertText;
+    } else {
+      nodeElement.innerHTML = insertText;
+    }
+  }
+};
+
+var checkDataAndChangeAttribute = function (nodeElement, data, attribute) {
+  if (!data) {
+    hideElement(nodeElement);
+    return;
+  } else {
+    nodeElement.setAttribute(attribute, data);
+  }
+};
+
+var checkDataAndRemoveElementsByArrayAndClassMap = function (nodeElement, childrenElements, data, classMap) {
+  if (data.length) {
+    for (var i = 0; i < childrenElements.length; i++) {
+      var hasElement = false;
+      for (var j = 0; j < data.length; j++) {
+        if (childrenElements[i].classList.contains(classMap[data[j]])) {
+          hasElement = true;
+          break;
+        }
+      }
+      if (!hasElement) {
+        childrenElements[i].remove();
+      }
+    }
+  } else {
+    hideElement(nodeElement);
+  }
+};
+
+var checkDataArrayAndCreateElementsFromChild = function (targetElement, data, attribute) {
+  if (data.length) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < data.length; i++) {
+      var element = targetElement.children[0].cloneNode(true);
+      checkDataAndChangeAttribute(element, data[i], attribute);
+      fragment.append(element);
+    }
+    targetElement.children[0].remove();
+    targetElement.appendChild(fragment);
+  } else {
+    hideElement(targetElement);
+  }
+};
+
+var getCard = function (datum) {
+  var announcementCard = document.querySelector('#card').content.querySelector('.popup').cloneNode(true);
+
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--price'), datum.offer.price, false, datum.offer.price + '₽/ночь');
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__type'), datum.offer.type, false, typesOfFlatDictionary[datum.offer.type]);
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--capacity'), datum.offer.rooms, false, datum.offer.rooms + ' комнаты для ' + datum.offer.guests + ' гостей');
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--time'), [datum.offer.checkin, datum.offer.checkout], false, 'Заезд после ' + datum.offer.checkin + ', выезд до ' + datum.offer.checkout);
+  checkDataAndCreateElement(announcementCard.querySelector('.popup__description'), datum.offer.description, false, datum.offer.description);
+  checkDataAndChangeAttribute(announcementCard.querySelector('.popup__avatar'), datum.author.avatar, 'src');
+  checkDataAndRemoveElementsByArrayAndClassMap(announcementCard.querySelector('.popup__features'), announcementCard.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
+  checkDataArrayAndCreateElementsFromChild(announcementCard.querySelector('.popup__photos'), datum.offer.photos, 'src');
+
+  return announcementCard;
+};
+
+var renderCard = function (testDatum) {
+  document.querySelector('.map__filters-container').insertAdjacentElement('beforebegin', testDatum);
+};
+
 var testData = getMocksArray();
 switchMapMode();
 renderMapPins(testData);
+renderCard(getCard(testData[0]));
+
