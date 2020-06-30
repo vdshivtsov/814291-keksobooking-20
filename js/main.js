@@ -67,14 +67,14 @@ var typesOfFlatDictionary = {
   'bungalo': 'Бунгало'
 };
 
-var mapFromFeatureToClass = {
-  'wifi': 'popup__feature--wifi',
-  'dishwasher': 'popup__feature--dishwasher',
-  'parking': 'popup__feature--parking',
-  'washer': 'popup__feature--washer',
-  'elevator': 'popup__feature--elevator',
-  'conditioner': 'popup__feature--conditioner'
-};
+// var mapFromFeatureToClass = {
+//   'wifi': 'popup__feature--wifi',
+//   'dishwasher': 'popup__feature--dishwasher',
+//   'parking': 'popup__feature--parking',
+//   'washer': 'popup__feature--washer',
+//   'elevator': 'popup__feature--elevator',
+//   'conditioner': 'popup__feature--conditioner'
+// };
 
 var mapPinsBlock = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -121,8 +121,59 @@ var renderMapPins = function (data) {
   mapPinsBlock.appendChild(getPinsFragment(data));
 };
 
-var switchMapMode = function () {
-  document.querySelector('.map').classList.toggle('map--faded');
+var deactivateElements = function (elements) {
+  elements.forEach(function (element) {
+    element.setAttribute('disabled', '');
+  });
+};
+
+var activateElements = function (elements) {
+  elements.forEach(function (element) {
+    element.removeAttribute('disabled', '');
+  });
+};
+
+var blockAdFormElements = function () {
+  var adFormFieldsets = document.querySelector('.ad-form').querySelectorAll('fieldset');
+
+  deactivateElements(adFormFieldsets);
+};
+
+var unblockAdFormElements = function () {
+  var adFormFieldsets = document.querySelector('.ad-form').querySelectorAll('fieldset');
+
+  activateElements(adFormFieldsets);
+};
+
+var blockMapFiltersElements = function () {
+  var mapFiltersBlock = document.querySelector('.map__filters');
+  var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
+  var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
+
+  deactivateElements(mapFiltersSelects);
+  deactivateElements(mapFiltersFieldsets);
+};
+
+var unblockMapFiltersElements = function () {
+  var mapFiltersBlock = document.querySelector('.map__filters');
+  var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
+  var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
+
+  activateElements(mapFiltersSelects);
+  activateElements(mapFiltersFieldsets);
+};
+
+var activatePage = function () {
+  document.querySelector('.map').classList.remove('map--faded');
+
+  renderMapPins(adData);
+  unblockAdFormElements();
+  unblockMapFiltersElements();
+};
+
+var initializeElements = function () {
+  blockAdFormElements();
+  blockMapFiltersElements();
 };
 
 var getMocksArray = function () {
@@ -166,89 +217,102 @@ var getMocksArray = function () {
   return mocksArray;
 };
 
-var hideElement = function (nodeElement) {
-  nodeElement.style.display = 'none';
-};
+// var hideElement = function (nodeElement) {
+//   nodeElement.style.display = 'none';
+// };
 
-var checkDataAndCreateElement = function (nodeElement, data, option, insertText) {
-  if (!data) {
-    hideElement(nodeElement);
-    return;
-  } else {
-    if (option) {
-      nodeElement.textContent = insertText;
-    } else {
-      nodeElement.innerHTML = insertText;
-    }
+// var checkDataAndCreateElement = function (nodeElement, data, option, insertText) {
+//   if (!data) {
+//     hideElement(nodeElement);
+//     return;
+//   } else {
+//     if (option) {
+//       nodeElement.textContent = insertText;
+//     } else {
+//       nodeElement.innerHTML = insertText;
+//     }
+//   }
+// };
+
+// var checkDataAndChangeAttribute = function (nodeElement, data, attribute) {
+//   if (!data) {
+//     hideElement(nodeElement);
+//     return;
+//   } else {
+//     nodeElement.setAttribute(attribute, data);
+//   }
+// };
+
+// var checkDataAndRemoveElementsByArrayAndClassMap = function (nodeElement, childrenElements, data, classMap) {
+//   if (data.length) {
+//     for (var i = 0; i < childrenElements.length; i++) {
+//       var hasElement = false;
+//       for (var j = 0; j < data.length; j++) {
+//         if (childrenElements[i].classList.contains(classMap[data[j]])) {
+//           hasElement = true;
+//           break;
+//         }
+//       }
+//       if (!hasElement) {
+//         childrenElements[i].remove();
+//       }
+//     }
+//   } else {
+//     hideElement(nodeElement);
+//   }
+// };
+
+// var checkDataArrayAndCreateElementsFromChild = function (targetElement, data, attribute) {
+//   if (data.length) {
+//     var fragment = document.createDocumentFragment();
+//     for (var i = 0; i < data.length; i++) {
+//       var element = targetElement.children[0].cloneNode(true);
+//       checkDataAndChangeAttribute(element, data[i], attribute);
+//       fragment.append(element);
+//     }
+//     targetElement.children[0].remove();
+//     targetElement.appendChild(fragment);
+//   } else {
+//     hideElement(targetElement);
+//   }
+// };
+
+// var getCard = function (datum) {
+//   var announcementCard = document.querySelector('#card').content.querySelector('.popup').cloneNode(true);
+
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--price'), datum.offer.price, false, datum.offer.price + '₽/ночь');
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__type'), datum.offer.type, false, typesOfFlatDictionary[datum.offer.type]);
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--capacity'), datum.offer.rooms, false, datum.offer.rooms + ' комнаты для ' + datum.offer.guests + ' гостей');
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--time'), [datum.offer.checkin, datum.offer.checkout], false, 'Заезд после ' + datum.offer.checkin + ', выезд до ' + datum.offer.checkout);
+//   checkDataAndCreateElement(announcementCard.querySelector('.popup__description'), datum.offer.description, false, datum.offer.description);
+//   checkDataAndChangeAttribute(announcementCard.querySelector('.popup__avatar'), datum.author.avatar, 'src');
+//   checkDataAndRemoveElementsByArrayAndClassMap(announcementCard.querySelector('.popup__features'), announcementCard.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
+//   checkDataArrayAndCreateElementsFromChild(announcementCard.querySelector('.popup__photos'), datum.offer.photos, 'src');
+
+//   return announcementCard;
+// };
+
+// var renderCard = function (testDatum) {
+//   document.querySelector('.map__filters-container').insertAdjacentElement('beforebegin', testDatum);
+// };
+
+var adData = getMocksArray();
+var mapPinMain = document.querySelector('.map__pin--main');
+
+initializeElements();
+mapPinMain.addEventListener('mousedown', function (evt) {
+  if (evt.button === 0) {
+    activatePage();
   }
-};
+});
 
-var checkDataAndChangeAttribute = function (nodeElement, data, attribute) {
-  if (!data) {
-    hideElement(nodeElement);
-    return;
-  } else {
-    nodeElement.setAttribute(attribute, data);
+mapPinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === 'Enter') {
+    activatePage();
   }
-};
+});
 
-var checkDataAndRemoveElementsByArrayAndClassMap = function (nodeElement, childrenElements, data, classMap) {
-  if (data.length) {
-    for (var i = 0; i < childrenElements.length; i++) {
-      var hasElement = false;
-      for (var j = 0; j < data.length; j++) {
-        if (childrenElements[i].classList.contains(classMap[data[j]])) {
-          hasElement = true;
-          break;
-        }
-      }
-      if (!hasElement) {
-        childrenElements[i].remove();
-      }
-    }
-  } else {
-    hideElement(nodeElement);
-  }
-};
-
-var checkDataArrayAndCreateElementsFromChild = function (targetElement, data, attribute) {
-  if (data.length) {
-    var fragment = document.createDocumentFragment();
-    for (var i = 0; i < data.length; i++) {
-      var element = targetElement.children[0].cloneNode(true);
-      checkDataAndChangeAttribute(element, data[i], attribute);
-      fragment.append(element);
-    }
-    targetElement.children[0].remove();
-    targetElement.appendChild(fragment);
-  } else {
-    hideElement(targetElement);
-  }
-};
-
-var getCard = function (datum) {
-  var announcementCard = document.querySelector('#card').content.querySelector('.popup').cloneNode(true);
-
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--price'), datum.offer.price, false, datum.offer.price + '₽/ночь');
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__type'), datum.offer.type, false, typesOfFlatDictionary[datum.offer.type]);
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--capacity'), datum.offer.rooms, false, datum.offer.rooms + ' комнаты для ' + datum.offer.guests + ' гостей');
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__text--time'), [datum.offer.checkin, datum.offer.checkout], false, 'Заезд после ' + datum.offer.checkin + ', выезд до ' + datum.offer.checkout);
-  checkDataAndCreateElement(announcementCard.querySelector('.popup__description'), datum.offer.description, false, datum.offer.description);
-  checkDataAndChangeAttribute(announcementCard.querySelector('.popup__avatar'), datum.author.avatar, 'src');
-  checkDataAndRemoveElementsByArrayAndClassMap(announcementCard.querySelector('.popup__features'), announcementCard.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
-  checkDataArrayAndCreateElementsFromChild(announcementCard.querySelector('.popup__photos'), datum.offer.photos, 'src');
-
-  return announcementCard;
-};
-
-var renderCard = function (testDatum) {
-  document.querySelector('.map__filters-container').insertAdjacentElement('beforebegin', testDatum);
-};
-
-var testData = getMocksArray();
-switchMapMode();
-renderMapPins(testData);
-renderCard(getCard(testData[0]));
+// renderCard(getCard(adData[0]));
 
