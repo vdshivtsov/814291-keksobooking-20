@@ -67,6 +67,20 @@ var typesOfFlatDictionary = {
   'bungalo': 'Бунгало'
 };
 
+var mapFromTypeToCost = {
+  'palace': 10000,
+  'flat': 1000,
+  'house': 5000,
+  'bungalo': 0
+};
+
+var mapFromRoomsToCapacity = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0']
+};
+
 // var mapFromFeatureToClass = {
 //   'wifi': 'popup__feature--wifi',
 //   'dishwasher': 'popup__feature--dishwasher',
@@ -82,6 +96,13 @@ var PIN_ELEMENT_HEIGHT = 70;
 
 var mapPinsBlock = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+var timeInSelect = document.querySelector('#timein');
+var timeOutSelect = document.querySelector('#timeout');
+var roomsSelect = document.querySelector('#room_number');
+var capacitySelect = document.querySelector('#capacity');
+var typeSelect = document.querySelector('#type');
+var mapPinMain = document.querySelector('.map__pin--main');
+var adData;
 
 var getRandomIntInclusive = function (min, max) {
   min = Math.ceil(min);
@@ -180,6 +201,26 @@ var activatePage = function () {
   unblockMapFiltersElements();
 };
 
+var compareRoomsWithCapacityAndSetCustomValidity = function () {
+  if (mapFromRoomsToCapacity[roomsSelect.value].indexOf(capacitySelect.value) === -1) {
+    var capacityOptions = capacitySelect.querySelectorAll('option');
+    var message = 'Возможные варианты: ';
+
+    for (var i = 0; i < capacityOptions.length; i++) {
+      if (mapFromRoomsToCapacity[roomsSelect.value].indexOf(capacityOptions[i].value) !== -1) {
+        message += capacityOptions[i].textContent;
+        if (i !== capacityOptions.length - 2) {
+          message += ', ';
+        }
+      }
+    }
+
+    capacitySelect.setCustomValidity(message);
+  } else {
+    capacitySelect.setCustomValidity('');
+  }
+};
+
 var initializeElements = function () {
   var addressInput = document.querySelector('#address');
   var pinTranslatePosition = getPinCenterPosition(mapPinMain);
@@ -187,6 +228,7 @@ var initializeElements = function () {
   blockAdFormElements();
   blockMapFiltersElements();
   setInputValue(addressInput, getAdressString(pinTranslatePosition.locationX, pinTranslatePosition.locationY));
+  compareRoomsWithCapacityAndSetCustomValidity();
 };
 
 var getMocksArray = function () {
@@ -311,9 +353,6 @@ var getMocksArray = function () {
 //   document.querySelector('.map__filters-container').insertAdjacentElement('beforebegin', testDatum);
 // };
 
-var adData = getMocksArray();
-var mapPinMain = document.querySelector('.map__pin--main');
-
 var getPinTranslatePosition = function (pin) {
   return {
     locationX: Math.ceil(pin.offsetLeft + pin.offsetWidth / 2),
@@ -332,7 +371,10 @@ var setInputValue = function (inputElement, value) {
   inputElement.value = value;
 };
 
+adData = getMocksArray();
 initializeElements();
+// renderCard(getCard(adData[0]));
+
 mapPinMain.addEventListener('mousedown', function (evt) {
   if (evt.button === 0) {
     var addressInput = document.querySelector('#address');
@@ -349,5 +391,40 @@ mapPinMain.addEventListener('keydown', function (evt) {
   }
 });
 
-// renderCard(getCard(adData[0]));
+typeSelect.addEventListener('change', function (evt) {
+  var priceInput = document.querySelector('#price');
+  switch (evt.target.value) {
+    case 'bungalo':
+      priceInput.min = mapFromTypeToCost['bungalo'];
+      priceInput.placeholder = mapFromTypeToCost['bungalo'];
+      break;
+    case 'flat':
+      priceInput.min = mapFromTypeToCost['flat'];
+      priceInput.placeholder = mapFromTypeToCost['flat'];
+      break;
+    case 'house':
+      priceInput.min = mapFromTypeToCost['house'];
+      priceInput.placeholder = mapFromTypeToCost['house'];
+      break;
+    case 'palace':
+      priceInput.min = mapFromTypeToCost['palace'];
+      priceInput.placeholder = mapFromTypeToCost['palace'];
+      break;
+  }
+});
 
+timeInSelect.addEventListener('change', function () {
+  timeOutSelect.value = timeInSelect.value;
+});
+
+timeOutSelect.addEventListener('change', function () {
+  timeInSelect.value = timeOutSelect.value;
+});
+
+roomsSelect.addEventListener('change', function () {
+  compareRoomsWithCapacityAndSetCustomValidity();
+});
+
+capacitySelect.addEventListener('change', function () {
+  compareRoomsWithCapacityAndSetCustomValidity();
+});
