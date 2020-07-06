@@ -94,18 +94,25 @@ var MAIN_PIN_AFFTER_OFFSET = 16;
 var PIN_ELEMENT_WIDTH = 50;
 var PIN_ELEMENT_HEIGHT = 70;
 
-var mapBlock = document.querySelector('.map');
-var mapPinsBlock = mapBlock.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var timeInSelect = document.querySelector('#timein');
-var timeOutSelect = document.querySelector('#timeout');
-var roomsSelect = document.querySelector('#room_number');
-var capacitySelect = document.querySelector('#capacity');
-var typeSelect = document.querySelector('#type');
-var mapPinMain = document.querySelector('.map__pin--main');
+// var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+var mapBlock = document.querySelector('.map');
+var mapFiltersBlock = mapBlock.querySelector('.map__filters');
+var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
+var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
+var mapPinsBlock = mapBlock.querySelector('.map__pins');
+var mapPinMain = mapPinsBlock.querySelector('.map__pin--main');
 var adForm = document.querySelector('.ad-form');
+var timeInSelect = adForm.querySelector('#timein');
+var timeOutSelect = adForm.querySelector('#timeout');
+var roomsSelect = adForm.querySelector('#room_number');
+var capacitySelect = adForm.querySelector('#capacity');
+var capacityOptions = capacitySelect.querySelectorAll('option');
+var typeSelect = adForm.querySelector('#type');
+var adFormFieldsets = adForm.querySelectorAll('fieldset');
+var addressInput = adForm.querySelector('#address');
 var resetButton = adForm.querySelector('.ad-form__reset');
-var addressInput = document.querySelector('#address');
+var priceInput = adForm.querySelector('#price');
 var adData;
 
 var getRandomIntInclusive = function (min, max) {
@@ -176,31 +183,21 @@ var activateElements = function (elements) {
 };
 
 var blockAdFormElements = function () {
-  var adFormFieldsets = adForm.querySelectorAll('fieldset');
-
+  adForm.classList.add('ad-form--disabled');
   deactivateElements(adFormFieldsets);
 };
 
 var unblockAdFormElements = function () {
-  var adFormFieldsets = adForm.querySelectorAll('fieldset');
-
+  adForm.classList.remove('ad-form--disabled');
   activateElements(adFormFieldsets);
 };
 
 var blockMapFiltersElements = function () {
-  var mapFiltersBlock = mapBlock.querySelector('.map__filters');
-  var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
-  var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
-
   deactivateElements(mapFiltersSelects);
   deactivateElements(mapFiltersFieldsets);
 };
 
 var unblockMapFiltersElements = function () {
-  var mapFiltersBlock = mapBlock.querySelector('.map__filters');
-  var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
-  var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
-
   activateElements(mapFiltersSelects);
   activateElements(mapFiltersFieldsets);
 };
@@ -221,7 +218,6 @@ var deactivatePage = function () {
 
 var compareRoomsWithCapacityAndSetCustomValidity = function () {
   if (mapFromRoomsToCapacity[roomsSelect.value].indexOf(capacitySelect.value) === -1) {
-    var capacityOptions = capacitySelect.querySelectorAll('option');
     var message = 'Возможные варианты: ';
 
     for (var i = 0; i < capacityOptions.length; i++) {
@@ -348,7 +344,7 @@ var getMocksArray = function () {
 // };
 
 // var getCard = function (datum) {
-//   var announcementCard = document.querySelector('#card').content.querySelector('.popup').cloneNode(true);
+//   var announcementCard = cardTemplate.cloneNode(true);
 
 //   checkDataAndCreateElement(announcementCard.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
 //   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
@@ -417,25 +413,8 @@ mapPinMain.addEventListener('keydown', function (evt) {
 });
 
 typeSelect.addEventListener('change', function (evt) {
-  var priceInput = document.querySelector('#price');
-  switch (evt.target.value) {
-    case 'bungalo':
-      priceInput.min = mapFromTypeToCost['bungalo'];
-      priceInput.placeholder = mapFromTypeToCost['bungalo'];
-      break;
-    case 'flat':
-      priceInput.min = mapFromTypeToCost['flat'];
-      priceInput.placeholder = mapFromTypeToCost['flat'];
-      break;
-    case 'house':
-      priceInput.min = mapFromTypeToCost['house'];
-      priceInput.placeholder = mapFromTypeToCost['house'];
-      break;
-    case 'palace':
-      priceInput.min = mapFromTypeToCost['palace'];
-      priceInput.placeholder = mapFromTypeToCost['palace'];
-      break;
-  }
+  priceInput.min = mapFromTypeToCost[evt.target.value];
+  priceInput.placeholder = mapFromTypeToCost[evt.target.value];
 });
 
 timeInSelect.addEventListener('change', function () {
