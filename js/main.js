@@ -81,27 +81,30 @@ var mapFromRoomsToCapacity = {
   '100': ['0']
 };
 
-// var mapFromFeatureToClass = {
-//   'wifi': 'popup__feature--wifi',
-//   'dishwasher': 'popup__feature--dishwasher',
-//   'parking': 'popup__feature--parking',
-//   'washer': 'popup__feature--washer',
-//   'elevator': 'popup__feature--elevator',
-//   'conditioner': 'popup__feature--conditioner'
-// };
+var mapFromFeatureToClass = {
+  'wifi': 'popup__feature--wifi',
+  'dishwasher': 'popup__feature--dishwasher',
+  'parking': 'popup__feature--parking',
+  'washer': 'popup__feature--washer',
+  'elevator': 'popup__feature--elevator',
+  'conditioner': 'popup__feature--conditioner'
+};
 
 var MAIN_PIN_AFFTER_OFFSET = 16;
 var PIN_ELEMENT_WIDTH = 50;
 var PIN_ELEMENT_HEIGHT = 70;
 
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-// var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 var mapBlock = document.querySelector('.map');
+var mapCard;
+var mapFiltersContainer = mapBlock.querySelector('.map__filters-container');
 var mapFiltersBlock = mapBlock.querySelector('.map__filters');
 var mapFiltersSelects = mapFiltersBlock.querySelectorAll('select');
 var mapFiltersFieldsets = mapFiltersBlock.querySelectorAll('fieldset');
 var mapPinsBlock = mapBlock.querySelector('.map__pins');
 var mapPinMain = mapPinsBlock.querySelector('.map__pin--main');
+var mapPins;
 var adForm = document.querySelector('.ad-form');
 var timeInSelect = adForm.querySelector('#timein');
 var timeOutSelect = adForm.querySelector('#timeout');
@@ -136,14 +139,36 @@ var getAdressString = function (x, y) {
   return x + ', ' + y;
 };
 
+var addMapPinActiveClass = function (activePin) {
+  mapPins.forEach(function (currentPin) {
+    if (currentPin === activePin) {
+      currentPin.classList.add('map__pin--active');
+    } else {
+      currentPin.classList.remove('map__pin--active');
+    }
+  });
+};
+
 var getPinElement = function (datum) {
   var pinElement = pinTemplate.cloneNode(true);
   var pinElementImage = pinElement.querySelector('img');
-
-  pinElement.style = 'left: ' + Math.ceil(datum.location.x - PIN_ELEMENT_WIDTH / 2) +
+  var style = 'left: ' + Math.ceil(datum.location.x - PIN_ELEMENT_WIDTH / 2) +
   'px; top: ' + Math.ceil(datum.location.y - PIN_ELEMENT_HEIGHT) + 'px;';
   pinElementImage.src = datum.author.avatar;
-  pinElementImage.alt = datum.offer.title;
+
+  if (datum.offer) {
+    pinElementImage.alt = datum.offer.title;
+  } else {
+    style += 'display: none;';
+  }
+
+  pinElement.style = style;
+
+  pinElement.addEventListener('click', function () {
+    derenderCard();
+    renderCard(getCard(datum));
+    addMapPinActiveClass(pinElement);
+  });
 
   return pinElement;
 };
@@ -160,14 +185,17 @@ var getPinsFragment = function (data) {
 
 var renderMapPins = function (data) {
   mapPinsBlock.appendChild(getPinsFragment(data));
+  mapPins = mapPinsBlock.querySelectorAll('.map__pin:not(.map__pin--main)');
 };
 
 var derenderMapPins = function () {
-  var pins = mapPinsBlock.querySelectorAll('button[type="button"]');
+  mapPins = mapPinsBlock.querySelectorAll('.map__pin:not(.map__pin--main)');
 
-  pins.forEach(function (pin) {
+  mapPins.forEach(function (pin) {
     pin.remove();
   });
+
+  mapPins = [];
 };
 
 var deactivateElements = function (elements) {
@@ -208,12 +236,15 @@ var activatePage = function () {
   renderMapPins(adData);
   unblockAdFormElements();
   unblockMapFiltersElements();
+  setAdressInputValue();
 };
 
 var deactivatePage = function () {
   mapBlock.classList.add('map--faded');
   derenderMapPins();
   initializeElements();
+  setAdressInputValue();
+  derenderCard();
 };
 
 var compareRoomsWithCapacityAndSetCustomValidity = function () {
@@ -238,7 +269,7 @@ var compareRoomsWithCapacityAndSetCustomValidity = function () {
 var initializeElements = function () {
   blockAdFormElements();
   blockMapFiltersElements();
-  setDefaultAdressInputValue();
+  setAdressInputValue();
   compareRoomsWithCapacityAndSetCustomValidity();
 };
 
@@ -283,86 +314,105 @@ var getMocksArray = function () {
   return mocksArray;
 };
 
-// var hideElement = function (nodeElement) {
-//   nodeElement.style.display = 'none';
-// };
+var hideElement = function (nodeElement) {
+  nodeElement.style.display = 'none';
+};
 
-// var checkDataAndCreateElement = function (nodeElement, data, option, insertText) {
-//   if (!data) {
-//     hideElement(nodeElement);
-//     return;
-//   } else {
-//     if (option) {
-//       nodeElement.textContent = insertText;
-//     } else {
-//       nodeElement.innerHTML = insertText;
-//     }
-//   }
-// };
+var checkDataAndCreateElement = function (nodeElement, data, option, insertText) {
+  if (!data) {
+    hideElement(nodeElement);
+    return;
+  } else {
+    if (option) {
+      nodeElement.textContent = insertText;
+    } else {
+      nodeElement.innerHTML = insertText;
+    }
+  }
+};
 
-// var checkDataAndChangeAttribute = function (nodeElement, data, attribute) {
-//   if (!data) {
-//     hideElement(nodeElement);
-//     return;
-//   } else {
-//     nodeElement.setAttribute(attribute, data);
-//   }
-// };
+var checkDataAndChangeAttribute = function (nodeElement, data, attribute) {
+  if (!data) {
+    hideElement(nodeElement);
+    return;
+  } else {
+    nodeElement.setAttribute(attribute, data);
+  }
+};
 
-// var checkDataAndRemoveElementsByArrayAndClassMap = function (nodeElement, childrenElements, data, classMap) {
-//   if (data.length) {
-//     for (var i = 0; i < childrenElements.length; i++) {
-//       var hasElement = false;
-//       for (var j = 0; j < data.length; j++) {
-//         if (childrenElements[i].classList.contains(classMap[data[j]])) {
-//           hasElement = true;
-//           break;
-//         }
-//       }
-//       if (!hasElement) {
-//         childrenElements[i].remove();
-//       }
-//     }
-//   } else {
-//     hideElement(nodeElement);
-//   }
-// };
+var checkDataAndRemoveElementsByArrayAndClassMap = function (nodeElement, childrenElements, data, classMap) {
+  if (data.length) {
+    for (var i = 0; i < childrenElements.length; i++) {
+      var hasElement = false;
+      for (var j = 0; j < data.length; j++) {
+        if (childrenElements[i].classList.contains(classMap[data[j]])) {
+          hasElement = true;
+          break;
+        }
+      }
+      if (!hasElement) {
+        childrenElements[i].remove();
+      }
+    }
+  } else {
+    hideElement(nodeElement);
+  }
+};
 
-// var checkDataArrayAndCreateElementsFromChild = function (targetElement, data, attribute) {
-//   if (data.length) {
-//     var fragment = document.createDocumentFragment();
-//     for (var i = 0; i < data.length; i++) {
-//       var element = targetElement.children[0].cloneNode(true);
-//       checkDataAndChangeAttribute(element, data[i], attribute);
-//       fragment.append(element);
-//     }
-//     targetElement.children[0].remove();
-//     targetElement.appendChild(fragment);
-//   } else {
-//     hideElement(targetElement);
-//   }
-// };
+var checkDataArrayAndCreateElementsFromChild = function (targetElement, data, attribute) {
+  if (data.length) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < data.length; i++) {
+      var element = targetElement.children[0].cloneNode(true);
+      checkDataAndChangeAttribute(element, data[i], attribute);
+      fragment.append(element);
+    }
+    targetElement.children[0].remove();
+    targetElement.appendChild(fragment);
+  } else {
+    hideElement(targetElement);
+  }
+};
 
-// var getCard = function (datum) {
-//   var announcementCard = cardTemplate.cloneNode(true);
+var getCard = function (datum) {
+  var card = cardTemplate.cloneNode(true);
 
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--price'), datum.offer.price, false, datum.offer.price + '₽/ночь');
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__type'), datum.offer.type, false, typesOfFlatDictionary[datum.offer.type]);
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--capacity'), datum.offer.rooms, false, datum.offer.rooms + ' комнаты для ' + datum.offer.guests + ' гостей');
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__text--time'), [datum.offer.checkin, datum.offer.checkout], false, 'Заезд после ' + datum.offer.checkin + ', выезд до ' + datum.offer.checkout);
-//   checkDataAndCreateElement(announcementCard.querySelector('.popup__description'), datum.offer.description, false, datum.offer.description);
-//   checkDataAndChangeAttribute(announcementCard.querySelector('.popup__avatar'), datum.author.avatar, 'src');
-//   checkDataAndRemoveElementsByArrayAndClassMap(announcementCard.querySelector('.popup__features'), announcementCard.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
-//   checkDataArrayAndCreateElementsFromChild(announcementCard.querySelector('.popup__photos'), datum.offer.photos, 'src');
+  checkDataAndCreateElement(card.querySelector('.popup__title'), datum.offer.title, false, datum.offer.title);
+  checkDataAndCreateElement(card.querySelector('.popup__text--address'), datum.offer.address, false, datum.offer.address);
+  checkDataAndCreateElement(card.querySelector('.popup__text--price'), datum.offer.price, false, datum.offer.price + '₽/ночь');
+  checkDataAndCreateElement(card.querySelector('.popup__type'), datum.offer.type, false, typesOfFlatDictionary[datum.offer.type]);
+  checkDataAndCreateElement(card.querySelector('.popup__text--capacity'), datum.offer.rooms, false, datum.offer.rooms + ' комнаты для ' + datum.offer.guests + ' гостей');
+  checkDataAndCreateElement(card.querySelector('.popup__text--time'), [datum.offer.checkin, datum.offer.checkout], false, 'Заезд после ' + datum.offer.checkin + ', выезд до ' + datum.offer.checkout);
+  checkDataAndCreateElement(card.querySelector('.popup__description'), datum.offer.description, false, datum.offer.description);
+  checkDataAndChangeAttribute(card.querySelector('.popup__avatar'), datum.author.avatar, 'src');
+  checkDataAndRemoveElementsByArrayAndClassMap(card.querySelector('.popup__features'), card.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
+  checkDataArrayAndCreateElementsFromChild(card.querySelector('.popup__photos'), datum.offer.photos, 'src');
 
-//   return announcementCard;
-// };
+  card.querySelector('.popup__close').addEventListener('click', function () {
+    derenderCard();
+  });
 
-// var renderCard = function (testDatum) {
-//   mapBlock.querySelector('.map__filters-container').insertAdjacentElement('beforebegin', testDatum);
-// };
+  return card;
+};
+
+var onMapCardPressEscape = function (evt) {
+  if (evt.key === 'Escape') {
+    derenderCard();
+  }
+};
+
+var derenderCard = function () {
+  if (mapCard) {
+    mapCard.remove();
+    document.removeEventListener('keydown', onMapCardPressEscape);
+  }
+};
+
+var renderCard = function (card) {
+  mapFiltersContainer.insertAdjacentElement('beforebegin', card);
+  document.addEventListener('keydown', onMapCardPressEscape);
+  mapCard = mapBlock.querySelector('.map__card');
+};
 
 var getPinTranslatePosition = function (pin) {
   return {
@@ -382,34 +432,46 @@ var setInputValue = function (inputElement, value) {
   inputElement.value = value;
 };
 
-var setDefaultAdressInputValue = function () {
+var setAdressInputValue = function () {
   var pinPosition;
 
-  if (mapBlock.classList.contains('map--faded')) {
-    pinPosition = getPinCenterPosition(mapPinMain);
-  } else {
+  if (!mapBlock.classList.contains('map--faded')) {
     pinPosition = getPinTranslatePosition(mapPinMain);
+  } else {
+    pinPosition = getPinCenterPosition(mapPinMain);
   }
 
   setInputValue(addressInput, getAdressString(pinPosition.locationX, pinPosition.locationY));
 };
 
-adData = getMocksArray();
-initializeElements();
-// renderCard(getCard(adData[0]));
-
-mapPinMain.addEventListener('mousedown', function (evt) {
+var onMapPinMainClick = function (evt) {
   if (evt.button === 0) {
-
     activatePage();
-    setDefaultAdressInputValue();
+    mapPinMain.removeEventListener('mousedown', onMapPinMainClick);
+    mapPinMain.removeEventListener('keydown', onMapPinMainPressEnter);
   }
-});
+};
 
-mapPinMain.addEventListener('keydown', function (evt) {
+var onMapPinMainPressEnter = function (evt) {
   if (evt.key === 'Enter') {
     activatePage();
+    mapPinMain.removeEventListener('mousedown', onMapPinMainClick);
+    mapPinMain.removeEventListener('keydown', onMapPinMainPressEnter);
   }
+};
+
+adData = getMocksArray();
+initializeElements();
+
+mapPinMain.addEventListener('mousedown', onMapPinMainClick);
+mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
+
+resetButton.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  adForm.reset();
+  deactivatePage();
+  mapPinMain.addEventListener('mousedown', onMapPinMainClick);
+  mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
 });
 
 typeSelect.addEventListener('change', function (evt) {
@@ -433,8 +495,4 @@ capacitySelect.addEventListener('change', function () {
   compareRoomsWithCapacityAndSetCustomValidity();
 });
 
-resetButton.addEventListener('click', function (evt) {
-  evt.preventDefault();
-  adForm.reset();
-  deactivatePage();
-});
+
