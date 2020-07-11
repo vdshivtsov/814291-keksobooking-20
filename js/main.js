@@ -388,6 +388,10 @@ var getCard = function (datum) {
   checkDataAndRemoveElementsByArrayAndClassMap(card.querySelector('.popup__features'), card.querySelectorAll('.popup__feature'), datum.offer.features, mapFromFeatureToClass);
   checkDataArrayAndCreateElementsFromChild(card.querySelector('.popup__photos'), datum.offer.photos, 'src');
 
+  card.querySelector('.popup__close').addEventListener('click', function () {
+    derenderCard();
+  });
+
   return card;
 };
 
@@ -406,13 +410,7 @@ var derenderCard = function () {
 
 var renderCard = function (card) {
   mapFiltersContainer.insertAdjacentElement('beforebegin', card);
-
-  card.querySelector('.popup__close').addEventListener('click', function () {
-    derenderCard();
-  });
-
   document.addEventListener('keydown', onMapCardPressEscape);
-
   mapCard = mapBlock.querySelector('.map__card');
 };
 
@@ -446,26 +444,34 @@ var setAdressInputValue = function () {
   setInputValue(addressInput, getAdressString(pinPosition.locationX, pinPosition.locationY));
 };
 
-var onMapPinMainPressEnterOrClick = function (evt) {
-  if (evt.button === 0 || evt.key === 'Enter') {
+var onMapPinMainClick = function (evt) {
+  if (evt.button === 0) {
     activatePage();
-    mapPinMain.removeEventListener('mousedown', onMapPinMainPressEnterOrClick);
-    mapPinMain.removeEventListener('keydown', onMapPinMainPressEnterOrClick);
+    mapPinMain.removeEventListener('mousedown', onMapPinMainClick);
+    mapPinMain.removeEventListener('keydown', onMapPinMainPressEnter);
+  }
+};
+
+var onMapPinMainPressEnter = function (evt) {
+  if (evt.key === 'Enter') {
+    activatePage();
+    mapPinMain.removeEventListener('mousedown', onMapPinMainClick);
+    mapPinMain.removeEventListener('keydown', onMapPinMainPressEnter);
   }
 };
 
 adData = getMocksArray();
 initializeElements();
 
-mapPinMain.addEventListener('mousedown', onMapPinMainPressEnterOrClick);
-mapPinMain.addEventListener('keydown', onMapPinMainPressEnterOrClick);
+mapPinMain.addEventListener('mousedown', onMapPinMainClick);
+mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
 
 resetButton.addEventListener('click', function (evt) {
   evt.preventDefault();
   adForm.reset();
   deactivatePage();
-  mapPinMain.addEventListener('mousedown', onMapPinMainPressEnterOrClick);
-  mapPinMain.addEventListener('keydown', onMapPinMainPressEnterOrClick);
+  mapPinMain.addEventListener('mousedown', onMapPinMainClick);
+  mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
 });
 
 typeSelect.addEventListener('change', function (evt) {
