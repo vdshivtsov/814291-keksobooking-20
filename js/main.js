@@ -1,35 +1,35 @@
 'use strict';
 
-adData = getMocksArray();
-initializeElements();
+(function () {
+  window.data.adData = window.data.getMocksArray();
+  window.form.initializeElements();
 
-mapPinMain.addEventListener('mousedown', onMapPinMainClick);
-mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
+  window.global.mapPinMain.addEventListener('mousedown', window.pin.onMapPinMainClick);
+  window.global.mapPinMain.addEventListener('keydown', window.pin.onMapPinMainPressEnter);
 
-resetButton.addEventListener('click', function (evt) {
-  evt.preventDefault();
-  adForm.reset();
-  deactivatePage();
-  mapPinMain.addEventListener('mousedown', onMapPinMainClick);
-  mapPinMain.addEventListener('keydown', onMapPinMainPressEnter);
-});
+  window.form.resetButton.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    window.form.adForm.reset();
+    window.map.deactivatePage();
+    window.global.mapPinMain.addEventListener('mousedown', window.pin.onMapPinMainClick);
+    window.global.mapPinMain.addEventListener('keydown', window.pin.onMapPinMainPressEnter);
+  });
 
-typeSelect.addEventListener('change', onTypeSelectChange);
+  window.form.typeSelect.addEventListener('change', window.form.onTypeSelectChange);
 
-timeInSelect.addEventListener('change', function () {
-  timeOutSelect.value = timeInSelect.value;
-});
+  window.form.timeInSelect.addEventListener('change', function () {
+    window.form.timeOutSelect.value = window.form.timeInSelect.value;
+  });
 
-timeOutSelect.addEventListener('change', function () {
-  timeInSelect.value = timeOutSelect.value;
-});
+  window.form.timeOutSelect.addEventListener('change', function () {
+    window.form.timeInSelect.value = window.form.timeOutSelect.value;
+  });
 
-roomsSelect.addEventListener('change', function () {
-  compareRoomsWithCapacityAndSetCustomValidity();
-});
+  window.form.roomsSelect.addEventListener('change', function () {
+    window.form.compareRoomsWithCapacityAndSetCustomValidity();
+  });
 
-capacitySelect.addEventListener('change', function () {
-  compareRoomsWithCapacityAndSetCustomValidity();
-});
-
-
+  window.form.capacitySelect.addEventListener('change', function () {
+    window.form.compareRoomsWithCapacityAndSetCustomValidity();
+  });
+})();
