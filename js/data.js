@@ -102,8 +102,8 @@
     var descriptions = DESCRIPTIONS_ARRAY.slice(0);
 
     for (var i = 0; i < amountOfMocks; i++) {
-      locationX = getRandomIntInclusive(0, window.global.mapPinsBlock.clientWidth);
-      locationY = getRandomIntInclusive(130, 630);
+      locationX = getRandomIntInclusive(window.global.positionLimits.xMin, window.global.positionLimits.xMax);
+      locationY = getRandomIntInclusive(window.global.positionLimits.yMin, window.global.positionLimits.yMax);
       mock = {
         'author': {
           'avatar': avatars.splice(getRandomIntInclusive(0, avatars.length - 1), 1)[0]
